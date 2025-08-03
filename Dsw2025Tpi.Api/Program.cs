@@ -4,9 +4,12 @@ using Dsw2025Tpi.Data;
 using Dsw2025Tpi.Data.Repositories;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -52,8 +55,33 @@ public class Program
         });
         builder.Services.AddHealthChecks();
         /*autenticacion paso 1 esquemas*/
-        builder.Services.AddAuthentication()
-        .AddJwtBearer();
+        /*levantamos el valor de appsetting*/
+        var jwtConfig = builder.Configuration.GetSection("Jwt");
+        var keyText = jwtConfig["Key"] ?? throw new ArgumentNullException("No se encontró la clave JWT en la configuración.");
+        var key = Encoding.UTF8.GetBytes(keyText);
+        /*le pasamos info para generar el token*/
+
+        builder.Services.AddAuthentication(options =>
+        {
+            /*esquemas por defecto a usar*/
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtConfig["Issuer"],
+                ValidAudience = jwtConfig["Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(key)
+            };
+        });
+        builder.Services.AddSingleton<JwtTokenService>();
 
         builder.Services.AddDbContext<Dsw2025TpiContext>(option =>
         {
