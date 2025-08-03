@@ -3,11 +3,13 @@ using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Services;
 using Dsw2025Tpi.Domain.Entities;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dsw2025Tpi.Api.Controllers
 {
     [ApiController]
+    [Authorize] /*se agrega la autorizacion de los endpoint*/
     [Route("api/orders")]
     public class OrdersController : ControllerBase
     {

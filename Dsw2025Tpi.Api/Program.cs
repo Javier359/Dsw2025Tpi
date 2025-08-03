@@ -5,6 +5,7 @@ using Dsw2025Tpi.Data.Repositories;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -54,6 +55,25 @@ public class Program
 
         });
         builder.Services.AddHealthChecks();
+
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+        {
+            options.Password = new PasswordOptions
+            {
+                RequiredLength = 8,
+                RequireDigit = true,
+                RequireLowercase = true,
+                RequireUppercase = true,
+                RequireNonAlphanumeric = false // Cambiado a false para permitir contraseñas sin caracteres especiales
+            };
+        })
+        .AddEntityFrameworkStores<AuthenticateContext>()
+        .AddDefaultTokenProviders();
+
+        builder.Services.AddDbContext<AuthenticateContext>(options =>
+        {
+            options.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Dsw2025Db;Integrated Security=True");
+        });
         /*autenticacion paso 1 esquemas*/
         /*levantamos el valor de appsetting*/
         var jwtConfig = builder.Configuration.GetSection("Jwt");
@@ -82,6 +102,7 @@ public class Program
             };
         });
         builder.Services.AddSingleton<JwtTokenService>();
+    
 
         builder.Services.AddDbContext<Dsw2025TpiContext>(option =>
         {
@@ -140,6 +161,7 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();
