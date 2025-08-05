@@ -19,7 +19,7 @@ namespace Dsw2025Tpi.Api.Controllers
             _service = service;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductModel.ProductRequest dto)
         {
             try
@@ -27,21 +27,13 @@ namespace Dsw2025Tpi.Api.Controllers
                 var pruduct = await _service.CreateProductAsync(dto);
                 return StatusCode(StatusCodes.Status201Created, pruduct);
             }
-            catch (ArgumentException ae)
+            catch (Exception ex)
             {
-                return BadRequest(ae.Message); //400
-            }
-            catch (DuplicatedEntityException de)
-            {
-                return Conflict(de.Message); //409
-            }
-            catch (Exception)
-            {
-                return Problem("Se produjo un error al guardar el producto.");
+                return BadRequest(new { Error = ex.Message });
             }
         }
 
-        [HttpGet]
+        [HttpGet("get")]
         public async Task<IActionResult> GetProducts()
         {
             try
@@ -64,7 +56,7 @@ namespace Dsw2025Tpi.Api.Controllers
 
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("get/{id:guid}")]
         public async Task<IActionResult> GetProductById(Guid id)
         {
             try
@@ -75,18 +67,14 @@ namespace Dsw2025Tpi.Api.Controllers
                     return NotFound(); //404
                 return Ok(product);
             }
-            catch(KeyNotFoundException knf)
-            {
-                return NotFound(new { error = knf.Message });
-            }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return BadRequest(new { Error = ex.Message });
             }
 
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut("{id:guid}/update")]
         public async Task<IActionResult> UpdateProduct(Guid id, ProductModel.UpdateProductRequest model)
         {
             try
@@ -94,17 +82,13 @@ namespace Dsw2025Tpi.Api.Controllers
                 var product = await _service.UpdateProductAsync(id, model);
 
                 if(product == null)
-                    return NotFound();
+                    return NotFound(product);
                 return StatusCode(StatusCodes.Status200OK, model);
 
             }
-            catch(ArgumentException ae)
-            {
-                return BadRequest(ae.Message);
-            }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return BadRequest(new { Error = ex.Message });
             }
         }
 
@@ -115,8 +99,9 @@ namespace Dsw2025Tpi.Api.Controllers
             {
                 var status = await _service.DisableProductAsync(id);
                 if (!status)
-                    return NotFound();
-                return NoContent(); //204
+                    return StatusCode(StatusCodes.Status404NotFound, $"El producto con id: '{id}' no existe.");
+
+                return StatusCode(StatusCodes.Status202Accepted, $"El producto con id: '{id}' fue desactivado.");
             }
             catch (Exception ex)
             {

@@ -1,7 +1,9 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace Dsw2025Tpi.Api.Controllers;
 
@@ -13,7 +15,8 @@ public class AuthenticateController : ControllerBase
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly JwtTokenService _jwtTokenService;
 
-    public AuthenticateController(UserManager<IdentityUser> userManager,
+    public AuthenticateController(
+        UserManager<IdentityUser> userManager,
         SignInManager<IdentityUser> signInManager,
         JwtTokenService jwtTokenService)
     {
@@ -27,17 +30,18 @@ public class AuthenticateController : ControllerBase
     {
         var user = await _userManager.FindByNameAsync(request.UserName);
         if (user == null)
-        {
-            return Unauthorized("Uusarioo contraseña incorrectos");
-        }
+            return Unauthorized("Usuario y/o contraseña incorrectos");
+
         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
         if (!result.Succeeded)
-        {
-            return Unauthorized("Usuario o contraseña incorrectos");
-        }
-        var token = _jwtTokenService.GenerateToken(request.UserName);
-        return Ok(new { token });
+            return Unauthorized("Usuario y/o contraseña incorrectos");
+
+        var token = await _jwtTokenService.GenerateToken(request.UserName);
+
+        return StatusCode(StatusCodes.Status201Created, new { token });
     }
+
+
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
@@ -46,13 +50,13 @@ public class AuthenticateController : ControllerBase
             UserName = model.UserName,
             Email = model.Email
         };
+
         var result = await _userManager.CreateAsync(user, model.Password);
 
         if (!result.Succeeded)
-        {
             return BadRequest(result.Errors);
-        }
-        return Ok("Usuario registrado correctamente");
+
+        return StatusCode(StatusCodes.Status202Accepted, $"Usuario '{model.Email}' registrado correctametne.");
     }
 
 }

@@ -6,5 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dsw2025Tpi.Application.Dtos;
 
-public record RegisterModel(string UserName, string Password, string Email);
+    public record RegisterModel(
+        string UserName, 
+        string Password, 
+        string Email
+    );
 

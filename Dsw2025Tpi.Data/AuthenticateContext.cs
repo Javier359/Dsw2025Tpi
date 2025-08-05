@@ -14,14 +14,12 @@ public class AuthenticateContext : IdentityDbContext
     public AuthenticateContext(DbContextOptions<AuthenticateContext> options)
         : base(options)
     {
-
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        /*esto lo usa el framework de identity para evitar crear identidades con relaciones como hicimos con product*/
-
+        /*esto lo usa el framework de identity para evitar crear entidades con relaciones como hicimos con product*/
 
         builder.Entity<IdentityUser>(b => { b.ToTable("Usuarios"); });
         builder.Entity<IdentityRole>(b => { b.ToTable("Roles"); });

@@ -21,7 +21,8 @@ namespace Dsw2025Tpi.Application.Services
 
         public async Task<ProductModel.ProductResponse> CreateProductAsync (ProductModel.ProductRequest dto)
         {
-            if(string.IsNullOrEmpty(dto.Sku) ||
+            if(string.IsNullOrWhiteSpace(dto.Sku) ||
+                string.IsNullOrEmpty(dto.Sku) ||
                string.IsNullOrWhiteSpace(dto.Name) ||
                dto.CurrentUnitPrice <= 0 ||
                dto.StockQuantity < 0 )
@@ -107,6 +108,7 @@ namespace Dsw2025Tpi.Application.Services
                 return null;
 
             if(string.IsNullOrWhiteSpace(dto.Name) ||
+                string.IsNullOrWhiteSpace(dto.Description) ||
                dto.CurrentUnitPrice <= 0 ||
                dto.StockQuantity < 0)
             {

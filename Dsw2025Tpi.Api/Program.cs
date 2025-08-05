@@ -64,7 +64,12 @@ public class Program
                 RequireDigit = true,
                 RequireLowercase = true,
                 RequireUppercase = true,
-                RequireNonAlphanumeric = false // Cambiado a false para permitir contraseñas sin caracteres especiales
+                RequireNonAlphanumeric = false
+            };
+            options.User = new UserOptions
+            {
+                RequireUniqueEmail = true,
+                AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._"                
             };
         })
         .AddEntityFrameworkStores<AuthenticateContext>()
@@ -74,22 +79,29 @@ public class Program
         {
             options.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Dsw2025Db;Integrated Security=True");
         });
-        /*autenticacion paso 1 esquemas*/
-        /*levantamos el valor de appsetting*/
-        var jwtConfig = builder.Configuration.GetSection("Jwt");
-        var keyText = jwtConfig["Key"] ?? throw new ArgumentNullException("No se encontró la clave JWT en la configuración.");
-        var key = Encoding.UTF8.GetBytes(keyText);
-        /*le pasamos info para generar el token*/
 
+        //Autenticación
+        /*VALIDACIÓn de TOKEN*/
+
+        //levantamos la configuración de appsettings
+        var jwtConfig = builder.Configuration.GetSection("Jwt");
+
+        //Recuperamos la Key
+        var keyText = jwtConfig["Key"] ?? throw new ArgumentNullException("No se encontró la clave JWT en la configuración.");
+       
+        //pasamos la Key a bytes
+        var key = Encoding.UTF8.GetBytes(keyText);
+        
         builder.Services.AddAuthentication(options =>
         {
-            /*esquemas por defecto a usar*/
+            /*esquemas por defecto a usar por el servicio de autenticación*/
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
         })
         .AddJwtBearer(options =>
         {
+            //config para token
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
@@ -101,9 +113,10 @@ public class Program
                 IssuerSigningKey = new SymmetricSecurityKey(key)
             };
         });
-        builder.Services.AddSingleton<JwtTokenService>();
-    
 
+        builder.Services.AddSingleton<JwtTokenService>();
+
+    
         builder.Services.AddDbContext<Dsw2025TpiContext>(option =>
         {
             option.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Dsw2025Db;Integrated Security=True");
