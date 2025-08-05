@@ -1,14 +1,14 @@
 [
   {
     "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
-    "eMail": "cliente1@example.com",
-    "name": "Cliente Simulado 1",
-    "phoneNumber": "1234567890"
+    "eMail": "maurino@gmail.com",
+    "name": "German Mauriño",
+    "phoneNumber": "3875637745"
   },
   {
-    "id": "11111111-2222-3333-4444-555555555555",
-    "eMail": "cliente2@example.com",
-    "name": "Cliente Simulado 2",
-    "phoneNumber": "0987654321"
+    "id": "a1b2c3d4-e5f6-7890-1234-567890abcdea",
+    "eMail": "Jiminez@gmail.com",
+    "name": "Javier Jimenez",
+    "phoneNumber": "3871435421"
   }
 ]

@@ -3,11 +3,13 @@ using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Services;
 using Dsw2025Tpi.Domain.Entities;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dsw2025Tpi.Api.Controllers
 {
     [ApiController]
+    [Authorize] /*se agrega la autorizacion de los endpoint*/
     [Route("api/orders")]
     public class OrdersController : ControllerBase
     {
@@ -17,7 +19,7 @@ namespace Dsw2025Tpi.Api.Controllers
             _orderManagementService = orderManagementService;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateOrder([FromBody] OrderModel.OrderRequest orderDto)
         {
             try
@@ -26,17 +28,13 @@ namespace Dsw2025Tpi.Api.Controllers
 
                 return StatusCode(StatusCodes.Status201Created, order);
             }
-            catch (ArgumentException ae)
-            {
-                return BadRequest(new {error = ae.Message});
-            }
             catch (Exception ex)
             {
-                return StatusCode(500, new {error = "Error interno al crear la orden."}); //middelware 
+                return BadRequest(new { Error = ex.Message });
             }
         }
 
-        [HttpGet]
+        [HttpGet("get")]
         public async Task<IActionResult> GetOrders (
             [FromQuery] OrderStatus? status,
             [FromQuery] Guid? customerId,
@@ -67,7 +65,7 @@ namespace Dsw2025Tpi.Api.Controllers
             }
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("get/{id:guid}")]
         public async Task<IActionResult> GetOrderById(Guid id)
         {
             try
@@ -75,17 +73,13 @@ namespace Dsw2025Tpi.Api.Controllers
                 var order = await _orderManagementService.GetOrderByIdAsync(id);
                 return StatusCode(StatusCodes.Status202Accepted, order);
             }
-            catch (KeyNotFoundException knf)
-            {
-                return NotFound(new { error = knf.Message });
-            }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return BadRequest(new { Error = ex.Message });
             }
         }
 
-        [HttpPut("{id:guid}/status")]
+        [HttpPut("get/{id:guid}/status")]
         public async Task<IActionResult> UpdateOrder (Guid id, [FromBody] OrderModel.UpdateOrderStatusRequest orderStatusDto)
         {
             try
@@ -94,20 +88,10 @@ namespace Dsw2025Tpi.Api.Controllers
                 return StatusCode(StatusCodes.Status200OK, orderUpdate);
 
             }
-            catch (KeyNotFoundException knf)
-            {
-                return NotFound(new { error = knf.Message });
-            }
-            catch (ArgumentException ae)
-            {
-                return BadRequest(new { error = ae.Message });
-            }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return BadRequest(new { Error = ex.Message });
             }
-
-
         }
     }
 }
