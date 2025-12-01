@@ -7,6 +7,7 @@ using Dsw2025Tpi.Domain.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -21,6 +22,9 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        var connectionString = builder.Configuration.GetConnectionString("DSW2025Ej15Entities")
+    ?? throw new InvalidOperationException("Connection string 'DSW2025Ej15Entities' not found.");
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
@@ -77,31 +81,25 @@ public class Program
 
         builder.Services.AddDbContext<AuthenticateContext>(options =>
         {
-            options.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Dsw2025Db;Integrated Security=True");
+            //options.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Dsw2025Db;Integrated Security=True");
+            options.UseSqlServer(connectionString);
         });
 
         //Autenticación
         /*VALIDACIÓn de TOKEN*/
 
-        //levantamos la configuración de appsettings
         var jwtConfig = builder.Configuration.GetSection("Jwt");
-
-        //Recuperamos la Key
         var keyText = jwtConfig["Key"] ?? throw new ArgumentNullException("No se encontró la clave JWT en la configuración.");
-       
-        //pasamos la Key a bytes
         var key = Encoding.UTF8.GetBytes(keyText);
         
         builder.Services.AddAuthentication(options =>
         {
-            /*esquemas por defecto a usar por el servicio de autenticación*/
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
         })
         .AddJwtBearer(options =>
         {
-            //config para token
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
@@ -119,13 +117,13 @@ public class Program
     
         builder.Services.AddDbContext<Dsw2025TpiContext>(option =>
         {
-            option.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Dsw2025Db;Integrated Security=True");
+            //option.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Dsw2025Db;Integrated Security=True");
+            option.UseSqlServer(connectionString);
         });
 
         builder.Services.AddControllers()
             .AddJsonOptions(opt =>
             {
-                // <-- Esto convierte siempre los enums a sus nombres de string
                 opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 

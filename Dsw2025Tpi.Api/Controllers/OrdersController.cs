@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Dsw2025Tpi.Api.Controllers
 {
     [ApiController]
-    [Authorize] /*se agrega la autorizacion de los endpoint*/
+    [Authorize]
     [Route("api/orders")]
     public class OrdersController : ControllerBase
     {

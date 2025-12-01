@@ -16,7 +16,7 @@ namespace Dsw2025Tpi.Domain.Entities
         public decimal TotalAmount { get; set; }
 
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
-        public ICollection<OrderItem> Items { get; set; } = new HashSet<OrderItem>(); //Order tiene muchas OrderItem
+        public ICollection<OrderItem> Items { get; set; } = new HashSet<OrderItem>();
 
         public Guid CustomerId { get; set; }
         public Customer? Customer { get; set; }

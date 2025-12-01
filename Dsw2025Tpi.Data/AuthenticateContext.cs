@@ -19,7 +19,6 @@ public class AuthenticateContext : IdentityDbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        /*esto lo usa el framework de identity para evitar crear entidades con relaciones como hicimos con product*/
 
         builder.Entity<IdentityUser>(b => { b.ToTable("Usuarios"); });
         builder.Entity<IdentityRole>(b => { b.ToTable("Roles"); });

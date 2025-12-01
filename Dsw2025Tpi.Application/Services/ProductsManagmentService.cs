@@ -54,7 +54,6 @@ namespace Dsw2025Tpi.Application.Services
                 created.CurrentUnitPrice,
                 created.StockQuantity
             );
-           
         }
 
         public async Task<List<ProductModel.ProductResponse>> GetProductsAsync()
@@ -97,7 +96,7 @@ namespace Dsw2025Tpi.Application.Services
                 product.Description,
                 product.CurrentUnitPrice,
                 product.StockQuantity
-                );
+            );
         }
 
         public async Task<ProductModel.ProductResponse> UpdateProductAsync(Guid id, ProductModel.UpdateProductRequest dto)
@@ -144,9 +143,6 @@ namespace Dsw2025Tpi.Application.Services
             await _repository.Update<Product>(product);
 
             return true;
-        }
-
-
-    
+        } 
     }
 }

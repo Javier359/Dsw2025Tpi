@@ -12,11 +12,11 @@ namespace Dsw2025Tpi.Domain.Entities
         public decimal UnitPrice { get; set; }
         public decimal SubTotal { get; set; }
 
-        public Guid OrderId { get; set; } //Fk de Order
-        public Order? Order { get; set; } //OrderItem sabe en que Order se encuentra 
+        public Guid OrderId { get; set; }
+        public Order? Order { get; set; } 
 
-        public Guid ProductId { get; set; } //Fk de Product
-        public Product? Product { get; set; } //para saber a que producto pertenece OrderId
+        public Guid ProductId { get; set; }
+        public Product? Product { get; set; }
 
         public OrderItem()
         {

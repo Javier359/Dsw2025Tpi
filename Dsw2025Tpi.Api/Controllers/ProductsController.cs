@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Dsw2025Tpi.Api.Controllers
 {
     [ApiController]
-    [Authorize] /*se agrega la autorizacion de los endpoint*/
+    [Authorize]
     [Route("api/products")]
     public class ProductsController : ControllerBase
     {
@@ -25,6 +25,7 @@ namespace Dsw2025Tpi.Api.Controllers
             try
             {
                 var pruduct = await _service.CreateProductAsync(dto);
+
                 return StatusCode(StatusCodes.Status201Created, pruduct);
             }
             catch (Exception ex)
@@ -33,6 +34,7 @@ namespace Dsw2025Tpi.Api.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("get")]
         public async Task<IActionResult> GetProducts()
         {
@@ -53,7 +55,6 @@ namespace Dsw2025Tpi.Api.Controllers
             {
                 return StatusCode(500, new { error = ex.Message });
             }
-
         }
 
         [HttpGet("get/{id:guid}")]
@@ -63,15 +64,12 @@ namespace Dsw2025Tpi.Api.Controllers
             {
                 var product = await _service.GetProductByIdAsync(id);
 
-                if (product == null)
-                    return NotFound(); //404
-                return Ok(product);
+                return StatusCode(StatusCodes.Status200OK, product);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { Error = ex.Message });
             }
-
         }
 
         [HttpPut("{id:guid}/update")]
@@ -107,7 +105,6 @@ namespace Dsw2025Tpi.Api.Controllers
             {
                 return StatusCode(500, new { error = ex.Message });
             }
-
         }
     }
 }

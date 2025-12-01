@@ -16,7 +16,7 @@ namespace Dsw2025Tpi.Application.Services
         {
             _repository = repository; 
         }
-
+         
         public async Task<OrderModel.OrderResponse> CreateOrderAsync(OrderModel.OrderRequest dtoRequest)
         {
             if (dtoRequest == null)
@@ -36,6 +36,9 @@ namespace Dsw2025Tpi.Application.Services
 
                 if (item.Quantity > product.StockQuantity)
                     throw new ArgumentException($"Stock insuficiente -> '{product.Name}'");
+
+                if (!product.IsActive)
+                    throw new ArgumentException($"El producto esta inactico.");
 
                 var subTotal = item.Quantity * product.CurrentUnitPrice;
                 total += subTotal;
@@ -121,7 +124,7 @@ namespace Dsw2025Tpi.Application.Services
                 .ToList();
 
             if (!page.Any())
-                return new List<OrderModel.OrderResponse>(); //204 NoContent
+                return new List<OrderModel.OrderResponse>();
 
             var orderList = page.Select(order => new OrderModel.OrderResponse(
                 order.Id,
