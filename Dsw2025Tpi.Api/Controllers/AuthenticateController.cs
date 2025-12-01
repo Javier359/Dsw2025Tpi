@@ -26,7 +26,7 @@ public class AuthenticateController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task< IActionResult> Login([FromBody] LoginModel request)
+    public async Task<IActionResult> Login([FromBody] LoginModel request)
     {
         var user = await _userManager.FindByNameAsync(request.UserName);
         if (user == null)
@@ -36,11 +36,23 @@ public class AuthenticateController : ControllerBase
         if (!result.Succeeded)
             return Unauthorized("Usuario y/o contraseña incorrectos");
 
-        var token = await _jwtTokenService.GenerateToken(request.UserName);
+        var roles = await _userManager.GetRolesAsync(user);
 
-        return StatusCode(StatusCodes.Status201Created, new { token });
+        var token = _jwtTokenService.GenerateToken(user, roles);
+
+        return StatusCode(StatusCodes.Status201Created, new 
+        { 
+            token,
+            user = new 
+            { 
+                user.UserName,
+                user.Email,
+                roles
+            }
+
+        });
+
     }
-
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
@@ -55,6 +67,8 @@ public class AuthenticateController : ControllerBase
 
         if (!result.Succeeded)
             return BadRequest(result.Errors);
+
+        await _userManager.AddToRoleAsync(user, "USER");
 
         return StatusCode(StatusCodes.Status202Accepted, $"Usuario '{model.Email}' registrado correctametne.");
     }

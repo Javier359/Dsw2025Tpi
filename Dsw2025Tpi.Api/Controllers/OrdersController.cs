@@ -34,6 +34,7 @@ namespace Dsw2025Tpi.Api.Controllers
             }
         }
 
+        //Pendiente - autenticado (USER ve la suya, ADMIN todas;
         [HttpGet("get")]
         public async Task<IActionResult> GetOrders (
             [FromQuery] OrderStatus? status,
@@ -65,6 +66,7 @@ namespace Dsw2025Tpi.Api.Controllers
             }
         }
 
+        //Pendiente - autenticado (USER ve la suya, ADMIN todas;
         [HttpGet("get/{id:guid}")]
         public async Task<IActionResult> GetOrderById(Guid id)
         {
@@ -80,6 +82,7 @@ namespace Dsw2025Tpi.Api.Controllers
         }
 
         [HttpPut("get/{id:guid}/status")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UpdateOrder (Guid id, [FromBody] OrderModel.UpdateOrderStatusRequest orderStatusDto)
         {
             try

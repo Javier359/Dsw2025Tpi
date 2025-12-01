@@ -25,7 +25,8 @@ namespace Dsw2025Tpi.Application.Dtos
             string Name,
             string Description,
             decimal CurrentUnitPrice,
-            int StockQuantity
+            int StockQuantity,
+            bool isActive
         );
 
         public record UpdateProductRequest(
@@ -34,5 +35,16 @@ namespace Dsw2025Tpi.Application.Dtos
             decimal CurrentUnitPrice,
             int StockQuantity
         );
+
+        //admin
+        public record FilterProduct (
+            string? Status,
+            string? Search,
+            int? PageNumber,
+            int? PageSize);
+
+        public record ResponsePaginatation (
+            List<ProductResponse> ProductItems,
+            int Total);
     }
 }

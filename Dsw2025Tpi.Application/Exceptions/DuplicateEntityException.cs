@@ -7,6 +7,7 @@ namespace Dsw2025Tpi.Application.Exceptions
         {
 
         }
+
     }
 
 }

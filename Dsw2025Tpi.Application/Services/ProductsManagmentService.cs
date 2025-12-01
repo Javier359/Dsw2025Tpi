@@ -52,7 +52,8 @@ namespace Dsw2025Tpi.Application.Services
                 created.Name,
                 created.Description,
                 created.CurrentUnitPrice,
-                created.StockQuantity
+                created.StockQuantity,
+                created.IsActive
             );
         }
 
@@ -75,7 +76,8 @@ namespace Dsw2025Tpi.Application.Services
                     p.Name,
                     p.Description,
                     p.CurrentUnitPrice,
-                    p.StockQuantity))
+                    p.StockQuantity,
+                    p.IsActive))
                 .ToList();
 
             return productsList;
@@ -95,7 +97,8 @@ namespace Dsw2025Tpi.Application.Services
                 product.Name,
                 product.Description,
                 product.CurrentUnitPrice,
-                product.StockQuantity
+                product.StockQuantity,
+                product.IsActive
             );
         }
 
@@ -128,7 +131,8 @@ namespace Dsw2025Tpi.Application.Services
                 update.Name,
                 update.Description,
                 update.CurrentUnitPrice,
-                update.StockQuantity
+                update.StockQuantity,
+                update.IsActive
             );  
         }
 
@@ -143,6 +147,61 @@ namespace Dsw2025Tpi.Application.Services
             await _repository.Update<Product>(product);
 
             return true;
-        } 
+        }
+
+        public async Task<ProductModel.ResponsePaginatation> GetProductsForAdminAsync(ProductModel.FilterProduct request)
+        {
+            bool? isActive = request.Status switch
+            {
+                "enable" => true,
+                "disable" => false,
+                _ => null
+            };
+
+            IEnumerable<Product> products;
+
+            if (isActive is null && string.IsNullOrWhiteSpace(request.Search))
+            {
+                products = await _repository.GetAll<Product>() ?? Enumerable.Empty<Product>();
+            }
+            else
+            {
+                products = await _repository.GetFiltered<Product>(p =>
+                    (isActive == null || p.IsActive == isActive.Value) &&
+                    (string.IsNullOrWhiteSpace(request.Search) || p.Name.Contains(request.Search))
+                ) ?? Enumerable.Empty<Product>();
+            }
+
+            var total = products.Count();
+
+            if (total == 0)
+            {
+                return new ProductModel.ResponsePaginatation(
+                    new List<ProductModel.ProductResponse>(),
+                    0
+                );
+            }
+
+            var pageNumber = request.PageNumber ?? 1;
+            var pageSize = request.PageSize ?? 10;
+
+            var pagedProducts = products
+            .OrderBy(p => p.Name)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => new ProductModel.ProductResponse(
+                p.Id,
+                p.Sku,
+                p.InternalCode,
+                p.Name,
+                p.Description,
+                p.CurrentUnitPrice,
+                p.StockQuantity,
+                p.IsActive
+            ))
+            .ToList();
+
+            return new ProductModel.ResponsePaginatation(pagedProducts, total);
+        }
     }
 }

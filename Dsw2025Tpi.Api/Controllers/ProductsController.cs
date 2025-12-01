@@ -20,6 +20,7 @@ namespace Dsw2025Tpi.Api.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductModel.ProductRequest dto)
         {
             try
@@ -57,6 +58,7 @@ namespace Dsw2025Tpi.Api.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("get/{id:guid}")]
         public async Task<IActionResult> GetProductById(Guid id)
         {
@@ -73,6 +75,7 @@ namespace Dsw2025Tpi.Api.Controllers
         }
 
         [HttpPut("{id:guid}/update")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UpdateProduct(Guid id, ProductModel.UpdateProductRequest model)
         {
             try
@@ -91,6 +94,7 @@ namespace Dsw2025Tpi.Api.Controllers
         }
 
         [HttpPatch("{id:guid}/isActive")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> DisableProduct(Guid id)
         {
             try
@@ -100,6 +104,26 @@ namespace Dsw2025Tpi.Api.Controllers
                     return StatusCode(StatusCodes.Status404NotFound, $"El producto con id: '{id}' no existe.");
 
                 return StatusCode(StatusCodes.Status202Accepted, $"El producto con id: '{id}' fue desactivado.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("admin")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetAdminProducts([FromQuery] ProductModel.FilterProduct request)
+        {
+            try
+            {
+                var product = await _service.GetProductsForAdminAsync(request);
+
+                if (product.ProductItems == null || !product.ProductItems.Any())
+                    return NoContent();
+
+                return StatusCode(StatusCodes.Status202Accepted, product);
+
             }
             catch (Exception ex)
             {

@@ -24,7 +24,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         var connectionString = builder.Configuration.GetConnectionString("DSW2025Ej15Entities")
-    ?? throw new InvalidOperationException("Connection string 'DSW2025Ej15Entities' not found.");
+            ?? throw new InvalidOperationException("Connection string 'DSW2025Ej15Entities' not found.");
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
@@ -137,6 +137,12 @@ public class Program
 
         var app = builder.Build();
 
+        //seed roles
+        using (var scope = app.Services.CreateScope())
+        {
+            IdentitySeeder.SeedAsync(scope.ServiceProvider).GetAwaiter().GetResult();
+        }
+
         //seed clientes
         using (var scope = app.Services.CreateScope())
         {
@@ -170,7 +176,7 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
 
         app.UseAuthentication();
         app.UseAuthorization();
